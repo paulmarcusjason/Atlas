@@ -8,6 +8,7 @@ from flask import current_app
 DATA_FILE_REL_PATH = 'database/products_data.json'
 CATEGORIES_FILE_REL_PATH = 'database/categories_data.json'
 SUBCATEGORIES_FILE_REL_PATH = 'database/subcategories_data.json'
+PRODUCT_VIDEOS_FILE_REL_PATH = 'database/product_videos_data.json'
 
 class GithubStorageService:
     _cached_products = None
@@ -16,6 +17,8 @@ class GithubStorageService:
     _categories_timestamp = 0
     _cached_subcategories = None
     _subcategories_timestamp = 0
+    _cached_product_videos = None
+    _product_videos_timestamp = 0
     CACHE_TTL_SECONDS = 30
 
     @classmethod
@@ -44,6 +47,8 @@ class GithubStorageService:
         cls._categories_timestamp = 0
         cls._cached_subcategories = None
         cls._subcategories_timestamp = 0
+        cls._cached_product_videos = None
+        cls._product_videos_timestamp = 0
 
     @classmethod
     def get_products(cls):
@@ -334,6 +339,125 @@ class GithubStorageService:
             subcategories_list,
             f"feat(categories): update subcategories list via admin [{len(subcategories_list)} subcategories]"
         )
+
+    @classmethod
+    def get_product_videos(cls):
+        now = time.time()
+        if cls._cached_product_videos is not None and (now - cls._product_videos_timestamp) < cls.CACHE_TTL_SECONDS:
+            return cls._cached_product_videos
+
+        token, repo, branch = cls._get_config()
+        if cls.is_configured():
+            try:
+                url = f"https://api.github.com/repos/{repo}/contents/{PRODUCT_VIDEOS_FILE_REL_PATH}?ref={branch}"
+                headers = {'Authorization': f'Bearer {token}', 'Accept': 'application/vnd.github.v3+json', 'User-Agent': 'Sathik-Vercel-App'}
+                resp = requests.get(url, headers=headers, timeout=6)
+                if resp.status_code == 200:
+                    raw = base64.b64decode(resp.json().get('content', '')).decode('utf-8')
+                    videos = json.loads(raw)
+                    if isinstance(videos, list):
+                        cls._cached_product_videos = videos
+                        cls._product_videos_timestamp = now
+                        return videos
+            except Exception as e:
+                print(f"⚠️ GitHub product videos read error: {e}")
+
+            try:
+                raw_url = f"https://raw.githubusercontent.com/{repo}/{branch}/{PRODUCT_VIDEOS_FILE_REL_PATH}?t={int(now)}"
+                raw_resp = requests.get(raw_url, headers={'Authorization': f'Bearer {token}', 'User-Agent': 'Sathik-Vercel-App'}, timeout=5)
+                if raw_resp.status_code == 200:
+                    videos = raw_resp.json()
+                    if isinstance(videos, list):
+                        cls._cached_product_videos = videos
+                        cls._product_videos_timestamp = now
+                        return videos
+            except Exception as e:
+                pass
+
+        local_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), PRODUCT_VIDEOS_FILE_REL_PATH)
+        if os.path.exists(local_path):
+            try:
+                with open(local_path, 'r', encoding='utf-8') as f:
+                    videos = json.load(f)
+                    if isinstance(videos, list):
+                        cls._cached_product_videos = videos
+                        cls._product_videos_timestamp = now
+                        return videos
+            except Exception as e:
+                print(f"⚠️ Local product videos read error: {e}")
+        return None
+
+    @classmethod
+    def save_product_videos(cls, videos_list):
+        cls._cached_product_videos = videos_list
+        cls._product_videos_timestamp = time.time()
+        return cls.save_json_file(
+            PRODUCT_VIDEOS_FILE_REL_PATH,
+            videos_list,
+            f"feat(videos): update product videos list via admin [{len(videos_list)} videos]"
+        )
+
+    @classmethod
+    def upload_file(cls, file_bytes, rel_path, commit_message="feat(upload): add file"):
+        """
+        Commits an uploaded file to rel_path in the GitHub repository,
+        returning (success, url_or_error). Also saves locally to disk if writable.
+        """
+        token, repo, branch = cls._get_config()
+
+        # Save locally if writable
+        local_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), rel_path)
+        try:
+            os.makedirs(os.path.dirname(local_path), exist_ok=True)
+            with open(local_path, 'wb') as f:
+                f.write(file_bytes)
+        except Exception as e:
+            print(f"ℹ️ Local write notice: {e}")
+
+        if not cls.is_configured():
+            return True, f"/{rel_path}"
+
+        try:
+            url = f"https://api.github.com/repos/{repo}/contents/{rel_path}"
+            headers = {
+                'Authorization': f'Bearer {token}',
+                'Accept': 'application/vnd.github.v3+json',
+                'User-Agent': 'Sathik-Vercel-App'
+            }
+
+            sha = None
+            get_resp = requests.get(f"{url}?ref={branch}", headers=headers, timeout=6)
+            if get_resp.status_code == 200:
+                sha = get_resp.json().get('sha')
+
+            content_b64 = base64.b64encode(file_bytes).decode('utf-8')
+            payload = {
+                "message": commit_message,
+                "content": content_b64,
+                "branch": branch
+            }
+            if sha:
+                payload["sha"] = sha
+
+            put_resp = requests.put(url, headers=headers, json=payload, timeout=20)
+            if put_resp.status_code in (200, 201):
+                raw_url = f"https://raw.githubusercontent.com/{repo}/{branch}/{rel_path}"
+                print(f"✅ {rel_path} committed to GitHub: {raw_url}")
+                return True, raw_url
+            else:
+                print(f"⚠️ GitHub upload status {put_resp.status_code}: {put_resp.text[:120]}")
+                return True, f"/{rel_path}"
+        except Exception as e:
+            print(f"⚠️ File commit exception: {e}")
+            return True, f"/{rel_path}"
+
+    @classmethod
+    def upload_video(cls, file_bytes, filename):
+        """
+        Commits an uploaded video to static/videos/uploads/ in the GitHub repository.
+        """
+        rel_path = f"static/videos/uploads/{filename}"
+        return cls.upload_file(file_bytes, rel_path, f"feat(videos): add product video {filename}")
 
     @classmethod
     def upload_image(cls, file_bytes, filename):

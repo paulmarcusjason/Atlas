@@ -25,8 +25,9 @@ class Config:
     
     # Upload Settings
     UPLOAD_FOLDER = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'static', 'uploads')
-    MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16 MB max upload size
+    MAX_CONTENT_LENGTH = 100 * 1024 * 1024  # 100 MB max upload size (accommodates product videos)
     ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp', 'webpg', 'svg', 'pdf', 'jfif', 'avif'}
+    ALLOWED_VIDEO_EXTENSIONS = {'mp4', 'webm', 'ogg', 'mov', 'm4v'}
     
     # Cloudinary Config (Optional)
     CLOUDINARY_CLOUD_NAME = os.getenv('CLOUDINARY_CLOUD_NAME', '')

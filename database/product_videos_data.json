@@ -1,0 +1,80 @@
+[
+  {
+    "id": "pv_1",
+    "slot": 1,
+    "title": "Architectural Door Locks & Hardwares",
+    "category": "Hardwares",
+    "badge": "Hardware Division",
+    "description": "Explore digital biometric smart locks, solid brass mortise handles, security cylinders, and architectural fittings from Godrej, Yale & Quba.",
+    "video_url": "/static/videos/hero_desktop.mp4",
+    "poster_url": "/static/images/stores/hardware.jpg",
+    "cta_text": "Know more",
+    "cta_url": "/products?business=hardware",
+    "is_active": true
+  },
+  {
+    "id": "pv_2",
+    "slot": 2,
+    "title": "Asian Paints & Waterproofing Studio",
+    "category": "Paints",
+    "badge": "Paints Division",
+    "description": "Discover Royale luxury emulsions, exterior weather-guard coatings, wood polishes, and complete Dr. Fixit & Sika waterproofing solutions.",
+    "video_url": "/static/videos/hero_mobile.mp4",
+    "poster_url": "/static/images/stores/asian_paints.jpg",
+    "cta_text": "Know more",
+    "cta_url": "/products?category=paints-chemicals",
+    "is_active": true
+  },
+  {
+    "id": "pv_3",
+    "slot": 3,
+    "title": "C.R.I. Pumps & Commercial Plumbing",
+    "category": "Pumps & Plumbing",
+    "badge": "Plumbing Division",
+    "description": "High-efficiency domestic booster pumps, agricultural submersible motors, CPVC/UPVC pipelines, and industrial water tech for seamless flow.",
+    "video_url": "/static/videos/hero_desktop.mp4",
+    "poster_url": "/static/images/stores/cri_pumps_store.jpg",
+    "cta_text": "Know more",
+    "cta_url": "/products?category=pumps",
+    "is_active": true
+  },
+  {
+    "id": "pv_4",
+    "slot": 4,
+    "title": "Industrial Power Tools & Machinery",
+    "category": "Industrial power tools",
+    "badge": "Power Tools Division",
+    "description": "Heavy-duty rotary hammers, angle grinders, cordless drill kits, and professional workshop equipment from Bosch, Makita & Ralliwolf.",
+    "video_url": "/static/videos/hero_mobile.mp4",
+    "poster_url": "/static/images/stores/power_tools.jpg",
+    "cta_text": "Know more",
+    "cta_url": "/products?business=plumbing&category=power-tools",
+    "is_active": true
+  },
+  {
+    "id": "pv_5",
+    "slot": 5,
+    "title": "Designer Bath & Luxury Sanitaryware",
+    "category": "Bath & Sanitaryware",
+    "badge": "Bath & Kitchen Division",
+    "description": "Thermostatic rain showers, designer faucets, ceramic art basins, and premium luxury bathroom suites from Jaquar & Hindware.",
+    "video_url": "/static/videos/hero_desktop.mp4",
+    "poster_url": "/static/images/stores/luxury_bathware_store.jpg",
+    "cta_text": "Know more",
+    "cta_url": "/products?business=bath-kitchen",
+    "is_active": true
+  },
+  {
+    "id": "pv_6",
+    "slot": 6,
+    "title": "Smart BLDC Fans & Modern Electricals",
+    "category": "Electricals",
+    "badge": "Electricals Division",
+    "description": "Super-efficient BLDC smart fans, architectural LED illumination, flame-retardant wiring, and luxury modular switches from Legrand & Orbit.",
+    "video_url": "/static/videos/hero_mobile.mp4",
+    "poster_url": "/static/images/stores/electricals.jpg",
+    "cta_text": "Know more",
+    "cta_url": "/products?category=electrical-fans",
+    "is_active": true
+  }
+]

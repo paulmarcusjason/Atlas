@@ -1,5 +1,8 @@
+import os
 import json
+import time
 from functools import wraps
+from werkzeug.utils import secure_filename
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash, jsonify, current_app, abort
 from models.product import ProductModel
 from models.brand import BrandModel
@@ -8,6 +11,8 @@ from models.enquiry import EnquiryModel
 from models.quotation import QuotationModel
 from models.project import ProjectModel
 from models.settings import SettingModel
+from models.product_video import ProductVideoModel
+from services.github_storage import GithubStorageService
 from utils.constants import BUSINESSES
 from utils.helpers import generate_slug
 from services.image_service import save_uploaded_image, save_brand_logo
@@ -981,4 +986,116 @@ def categories_json():
         'subcategories': subs,
         'staging_count': ProductService.get_staging_count()
     })
+
+# -------------------------------------------------------------
+# PRODUCT VIDEOS MANAGEMENT (6 Specialized Store Video Boxes)
+# -------------------------------------------------------------
+@admin_bp.route('/product-videos', methods=['GET'])
+@admin_required
+def product_videos():
+    videos = ProductVideoModel.find_all(active_only=False)
+    storage_connected = GithubStorageService.is_configured()
+    token, repo, branch = GithubStorageService._get_config()
+    return render_template(
+        'admin/product_videos.html',
+        videos=videos,
+        storage_connected=storage_connected,
+        repo=repo,
+        branch=branch
+    )
+
+@admin_bp.route('/product-videos/<int:slot>/edit', methods=['POST'])
+@admin_required
+def edit_product_video(slot):
+    try:
+        data = request.form.to_dict()
+        title = data.get('title', '').strip()
+        category = data.get('category', '').strip()
+        badge = data.get('badge', '').strip() or f"{category} Division"
+        description = data.get('description', '').strip()
+        cta_text = data.get('cta_text', '').strip() or 'Know more'
+        cta_url = data.get('cta_url', '').strip() or '/products'
+        is_active = 'is_active' in request.form
+
+        existing = ProductVideoModel.find_by_slot(slot) or {}
+        video_url = data.get('video_url', '').strip() or existing.get('video_url', '')
+        poster_url = data.get('poster_url', '').strip() or existing.get('poster_url', '')
+
+        # 1. Handle Video Upload
+        if 'video_file' in request.files and request.files['video_file'].filename:
+            file = request.files['video_file']
+            filename = secure_filename(file.filename)
+            ext = filename.rsplit('.', 1)[-1].lower() if '.' in filename else ''
+            allowed_vid = current_app.config.get('ALLOWED_VIDEO_EXTENSIONS', {'mp4', 'webm', 'ogg', 'mov', 'm4v'})
+            if ext in allowed_vid:
+                file_bytes = file.read()
+                if file_bytes:
+                    stored_filename = f"video_slot_{slot}_{int(time.time())}.{ext}"
+                    ok, uploaded_url = GithubStorageService.upload_video(file_bytes, stored_filename)
+                    if ok:
+                        video_url = uploaded_url
+                    else:
+                        flash(f'Notice saving video: {uploaded_url}', 'warning')
+            else:
+                flash(f'Invalid video format .{ext}. Allowed: {", ".join(allowed_vid)}', 'danger')
+
+        # 2. Handle Poster Image Upload
+        if 'poster_file' in request.files and request.files['poster_file'].filename:
+            pfile = request.files['poster_file']
+            pfilename = secure_filename(pfile.filename)
+            pext = pfilename.rsplit('.', 1)[-1].lower() if '.' in pfilename else ''
+            allowed_img = current_app.config.get('ALLOWED_EXTENSIONS', {'png', 'jpg', 'jpeg', 'webp', 'svg'})
+            if pext in allowed_img:
+                img_bytes = pfile.read()
+                if img_bytes:
+                    stored_imgname = f"poster_slot_{slot}_{int(time.time())}.{pext}"
+                    ok, uploaded_img_url = GithubStorageService.upload_image(img_bytes, stored_imgname)
+                    if ok:
+                        poster_url = uploaded_img_url
+            else:
+                flash(f'Invalid image format .{pext}', 'warning')
+
+        updated_slot = {
+            'id': f"pv_{slot}",
+            'slot': slot,
+            'title': title,
+            'category': category,
+            'badge': badge,
+            'description': description,
+            'video_url': video_url,
+            'poster_url': poster_url,
+            'cta_text': cta_text,
+            'cta_url': cta_url,
+            'is_active': is_active
+        }
+
+        success, msg = ProductVideoModel.update_slot(slot, updated_slot)
+        if success:
+            if GithubStorageService.is_configured():
+                flash(f'Box {slot} ("{title}") saved and pushed to GitHub repository!', 'success')
+            else:
+                flash(f'Box {slot} ("{title}") saved locally! (Push to GitHub when GITHUB_TOKEN is active)', 'success')
+        else:
+            flash(f'Error saving Box {slot}: {msg}', 'danger')
+
+        return redirect(url_for('admin.product_videos'))
+    except Exception as e:
+        current_app.logger.error(f"Error editing product video box {slot}: {e}", exc_info=True)
+        flash(f'Error updating video box: {e}', 'danger')
+        return redirect(url_for('admin.product_videos'))
+
+@admin_bp.route('/product-videos/push-github', methods=['POST'])
+@admin_required
+def push_product_videos_github():
+    try:
+        success, msg = ProductVideoModel.push_to_github()
+        if success:
+            flash(f'✅ Product videos data successfully pushed and committed to GitHub! ({msg})', 'success')
+        else:
+            flash(f'⚠️ Failed to commit to GitHub: {msg}', 'danger')
+        return redirect(url_for('admin.product_videos'))
+    except Exception as e:
+        current_app.logger.error(f"Error pushing product videos to GitHub: {e}", exc_info=True)
+        flash(f'Error pushing to GitHub: {e}', 'danger')
+        return redirect(url_for('admin.product_videos'))
 

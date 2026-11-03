@@ -603,6 +603,56 @@ across Chennai since 1964.{% endblock %}
   <div class="luxury-section-divider" style="margin-top: 1.75rem;"></div>
 </section>
 
+<!-- SPECIALIZED PRODUCT VIDEOS SECTION (6 Video Boxes Matching Specialized Stores Format) -->
+<section class="asian-stores-section product-videos-section" id="product-videos">
+  <div class="container">
+    <div class="text-center" style="margin-bottom: 2.25rem;">
+      <div class="section-tag">Direct Retail Divisions</div>
+      <h2 class="section-title">Specialized Product Videos</h2>
+      <p class="section-desc">Watch genuine materials, fittings, and equipment in action across our 6 specialized stores</p>
+    </div>
+
+    <div class="asian-stores-grid product-videos-grid">
+      {% for v in product_videos %}
+      <div class="asian-store-card product-video-card">
+        <div class="asian-store-img-box product-video-box" onclick="openProductVideoModal('{{ v.video_url }}', '{{ v.title|escape }}', '{{ v.description|escape }}', '{{ v.category|escape }}', '{{ v.cta_url }}', '{{ v.cta_text|escape }}')" title="Click to watch full video: {{ v.title }}">
+          <video class="product-video-media" muted loop playsinline preload="metadata" poster="{{ v.poster_url or '' }}" onmouseover="this.play()" onmouseout="this.pause()">
+            <source src="{{ v.video_url }}" type="video/mp4">
+          </video>
+          <!-- Play Badge Overlay -->
+          <div class="product-video-play-pill">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+              <polygon points="5 3 19 12 5 21 5 3"></polygon>
+            </svg>
+            <span>Watch Video</span>
+          </div>
+          <!-- Specialized Store Style Title & CTA Overlay -->
+          <div class="asian-store-overlay">
+            <span class="product-video-badge">{{ v.category or 'Division' }}</span>
+            <h3 class="asian-store-title">{{ v.title }}</h3>
+            <span class="asian-store-cta">{{ v.cta_text or 'View Products &gt;&gt;' }}</span>
+          </div>
+        </div>
+        <!-- Description formatted like the specialized stores descriptions -->
+        <div class="product-video-meta">
+          <p class="product-video-desc">{{ v.description }}</p>
+        </div>
+        <div class="asian-store-footer product-video-footer">
+          <a href="{{ v.cta_url }}" class="asian-store-knowmore">
+            {{ v.cta_text or 'Know more' }} &rarr;
+          </a>
+          <button type="button" class="btn-video-watch" onclick="openProductVideoModal('{{ v.video_url }}', '{{ v.title|escape }}', '{{ v.description|escape }}', '{{ v.category|escape }}', '{{ v.cta_url }}', '{{ v.cta_text|escape }}')">
+            ▶ Play Video
+          </button>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<div class="luxury-section-divider"></div>
+
 <!-- STORE PRODUCT GALLERY SECTION (Polished Visual Image Showcase) -->
 <section class="p-gallery-section" id="product-range">
   <div class="container">
@@ -1729,5 +1779,80 @@ across Chennai since 1964.{% endblock %}
       if (e.key === 'ArrowRight') stepLightbox(1);
     }
   });
+
+  // Product Video Modal Handlers
+  function openProductVideoModal(videoUrl, title, desc, category, ctaUrl, ctaText) {
+    const modal = document.getElementById('productVideoLightbox');
+    const player = document.getElementById('productVideoModalPlayer');
+    const source = document.getElementById('productVideoModalSource');
+    const titleEl = document.getElementById('productVideoModalTitle');
+    const descEl = document.getElementById('productVideoModalDesc');
+    const badgeEl = document.getElementById('productVideoModalBadge');
+    const ctaEl = document.getElementById('productVideoModalCta');
+
+    if (titleEl) titleEl.textContent = title || 'Product Video';
+    if (descEl) descEl.textContent = desc || '';
+    if (badgeEl) badgeEl.textContent = category || 'Specialized Division';
+    if (ctaEl) {
+      ctaEl.href = ctaUrl || '/products';
+      ctaEl.textContent = (ctaText || 'Know more') + ' →';
+    }
+
+    if (source && player) {
+      source.src = videoUrl;
+      player.load();
+      player.currentTime = 0;
+      player.play().catch(function() {});
+    }
+
+    if (modal) {
+      modal.classList.add('active');
+      modal.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+    }
+  }
+
+  function closeProductVideoModal() {
+    const modal = document.getElementById('productVideoLightbox');
+    const player = document.getElementById('productVideoModalPlayer');
+    if (player) {
+      player.pause();
+    }
+    if (modal) {
+      modal.classList.remove('active');
+      modal.style.display = 'none';
+      document.body.style.overflow = '';
+    }
+  }
+
+  document.addEventListener('keydown', function(e) {
+    const modal = document.getElementById('productVideoLightbox');
+    if (modal && modal.classList.contains('active') && e.key === 'Escape') {
+      closeProductVideoModal();
+    }
+  });
 </script>
+
+<!-- PRODUCT VIDEO LIGHTBOX MODAL -->
+<div class="product-video-lightbox" id="productVideoLightbox" onclick="if(event.target === this) closeProductVideoModal();">
+  <div class="product-video-dialog">
+    <div class="product-video-dialog-header">
+      <div style="display: flex; align-items: center; gap: 0.6rem;">
+        <span id="productVideoModalBadge" class="product-video-badge" style="margin: 0; background: rgba(234,88,12,0.15); padding: 0.2rem 0.5rem; border-radius: 4px;">Hardware</span>
+        <h3 class="product-video-dialog-title" id="productVideoModalTitle">Product Showcase Video</h3>
+      </div>
+      <button type="button" class="product-video-dialog-close" onclick="closeProductVideoModal()">&times;</button>
+    </div>
+    <div class="product-video-player-frame">
+      <video id="productVideoModalPlayer" controls playsinline style="width: 100%; height: 100%; background: #000;">
+        <source id="productVideoModalSource" src="" type="video/mp4">
+        Your browser does not support HTML5 video.
+      </video>
+    </div>
+    <div class="product-video-dialog-body" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+      <p id="productVideoModalDesc" style="margin: 0; color: #cbd5e1; font-size: 0.92rem; flex: 1;"></p>
+      <a id="productVideoModalCta" href="#" class="btn btn-primary btn-sm" style="white-space: nowrap; text-decoration: none;">Explore Products &rarr;</a>
+    </div>
+  </div>
+</div>
 {% endblock %}

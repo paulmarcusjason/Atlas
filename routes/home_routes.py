@@ -3,6 +3,7 @@ from flask import Blueprint, render_template, redirect, url_for, send_from_direc
 from models.product import ProductModel
 from models.brand import BrandModel
 from models.project import ProjectModel
+from models.product_video import ProductVideoModel
 from utils.constants import BUSINESSES, COMPANY_INFO
 
 home_bp = Blueprint('home', __name__)
@@ -27,6 +28,8 @@ def index():
             if not f.startswith('.') and os.path.splitext(f)[1].lower() in valid_exts
         ]
 
+    product_videos = ProductVideoModel.find_all(active_only=True)
+
     return render_template(
         'index.html',
         businesses=BUSINESSES,
@@ -36,7 +39,8 @@ def index():
         hardware_products=hardware_products,
         featured_brands=featured_brands,
         awards=awards_list,
-        company=COMPANY_INFO
+        company=COMPANY_INFO,
+        product_videos=product_videos
     )
 
 @home_bp.route('/about')
