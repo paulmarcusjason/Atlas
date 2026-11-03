@@ -38,10 +38,25 @@ def create_app(config_class=Config):
     from utils.helpers import get_specialized_stores_nav
     @app.context_processor
     def inject_global_context():
+        is_local = False
+        try:
+            from flask import request, has_request_context
+            if has_request_context():
+                host = request.host.split(':')[0].lower()
+                is_local = host in ('localhost', '127.0.0.1', '0.0.0.0', 'testserver')
+        except Exception:
+            pass
+
+        is_production = os.getenv('VERCEL') == '1' or os.getenv('FLASK_ENV') == 'production' or os.getenv('ENV') == 'production'
+        enable_local = app.config.get('ENABLE_LOCAL_GTM', False)
+        gtm_enabled = (is_production or not is_local or enable_local) and app.config.get('ENABLE_GTM', True)
+
         return {
             'company': COMPANY_INFO,
             'canonical_url': get_canonical_url(),
-            'specialized_stores_nav': get_specialized_stores_nav()
+            'specialized_stores_nav': get_specialized_stores_nav(),
+            'gtm_id': app.config.get('GTM_CONTAINER_ID', 'GTM-NZR4VKQZ'),
+            'gtm_enabled': gtm_enabled
         }
 
 

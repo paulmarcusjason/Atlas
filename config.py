@@ -42,3 +42,8 @@ class Config:
     # Pagination Defaults
     PRODUCTS_PER_PAGE = 12
     ADMIN_ITEMS_PER_PAGE = 20
+    
+    # Google Tag Manager (GTM) Configuration
+    GTM_CONTAINER_ID = os.getenv('GTM_CONTAINER_ID', 'GTM-NZR4VKQZ')
+    ENABLE_LOCAL_GTM = os.getenv('ENABLE_LOCAL_GTM', 'false').lower() in ('true', '1', 't', 'yes')
+    ENABLE_GTM = os.getenv('ENABLE_GTM', 'true').lower() in ('true', '1', 't', 'yes')
