@@ -8,7 +8,8 @@
     "order": 1,
     "id": "bathware",
     "_id": "bathware",
-    "is_active": true
+    "is_active": true,
+    "product_count": 5
   },
   {
     "name": "Kitchenware",
@@ -19,7 +20,8 @@
     "order": 2,
     "id": "kitchenware",
     "_id": "kitchenware",
-    "is_active": true
+    "is_active": true,
+    "product_count": 2
   },
   {
     "name": "Bathroom Hardware & Mirrors",
@@ -30,7 +32,8 @@
     "order": 3,
     "id": "bath-hardware-mirrors",
     "_id": "bath-hardware-mirrors",
-    "is_active": true
+    "is_active": true,
+    "product_count": 1
   },
   {
     "name": "Pipes & Tubing",
@@ -41,7 +44,8 @@
     "order": 1,
     "id": "pipes",
     "_id": "pipes",
-    "is_active": true
+    "is_active": true,
+    "product_count": 6
   },
   {
     "name": "Pipe Fittings & Valves",
@@ -52,7 +56,8 @@
     "order": 2,
     "id": "pipe-fittings",
     "_id": "pipe-fittings",
-    "is_active": true
+    "is_active": true,
+    "product_count": 8
   },
   {
     "name": "Pumps & Motors",
@@ -63,7 +68,8 @@
     "order": 3,
     "id": "pumps",
     "_id": "pumps",
-    "is_active": true
+    "is_active": true,
+    "product_count": 2
   },
   {
     "name": "Paints & Building Chemistry",
@@ -74,7 +80,8 @@
     "order": 1,
     "id": "paints-chemicals",
     "_id": "paints-chemicals",
-    "is_active": true
+    "is_active": true,
+    "product_count": 4
   },
   {
     "name": "Hardwares & Door Fittings",
@@ -85,7 +92,8 @@
     "order": 2,
     "id": "door-hardware",
     "_id": "door-hardware",
-    "is_active": true
+    "is_active": true,
+    "product_count": 5
   },
   {
     "name": "Electrical & Fans",
@@ -96,7 +104,8 @@
     "order": 3,
     "id": "electrical-fans",
     "_id": "electrical-fans",
-    "is_active": true
+    "is_active": true,
+    "product_count": 2
   },
   {
     "id": "cat_1790315832036",
@@ -108,7 +117,8 @@
     "icon": "📦",
     "order": 10,
     "is_active": true,
-    "created_at": "2026-09-25T05:57:12.036664"
+    "created_at": "2026-09-25T05:57:12.036664",
+    "product_count": 1
   },
   {
     "id": "power-tools",
@@ -120,7 +130,8 @@
     "icon": "🔨",
     "order": 4,
     "is_active": true,
-    "created_at": "2026-09-25T08:30:00.000000"
+    "created_at": "2026-09-25T08:30:00.000000",
+    "product_count": 15
   },
   {
     "id": "cat_1792226149676",
@@ -132,6 +143,19 @@
     "icon": "📦",
     "order": 12,
     "is_active": true,
-    "created_at": "2026-10-17T08:35:49.676031"
+    "created_at": "2026-10-17T08:35:49.676031",
+    "product_count": 1
+  },
+  {
+    "id": "cat_1793979904597",
+    "_id": "cat_1793979904597",
+    "name": "ladders",
+    "slug": "ladders",
+    "business_slug": "bath-kitchen",
+    "description": "",
+    "icon": "📦",
+    "order": 13,
+    "is_active": true,
+    "created_at": "2026-11-06T15:45:04.597263"
   }
 ]
