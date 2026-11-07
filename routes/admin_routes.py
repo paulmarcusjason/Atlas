@@ -994,14 +994,9 @@ def categories_json():
 @admin_required
 def product_videos():
     videos = ProductVideoModel.find_all(active_only=False)
-    storage_connected = GithubStorageService.is_configured()
-    token, repo, branch = GithubStorageService._get_config()
     return render_template(
         'admin/product_videos.html',
-        videos=videos,
-        storage_connected=storage_connected,
-        repo=repo,
-        branch=branch
+        videos=videos
     )
 
 @admin_bp.route('/product-videos/<int:slot>/edit', methods=['POST'])
@@ -1071,12 +1066,9 @@ def edit_product_video(slot):
 
         success, msg = ProductVideoModel.update_slot(slot, updated_slot)
         if success:
-            if GithubStorageService.is_configured():
-                flash(f'Box {slot} ("{title}") saved and pushed to GitHub repository!', 'success')
-            else:
-                flash(f'Box {slot} ("{title}") saved locally! (Push to GitHub when GITHUB_TOKEN is active)', 'success')
+            flash(f'✅ Box {slot} ("{title}") updated, saved, and pushed successfully!', 'success')
         else:
-            flash(f'Error saving Box {slot}: {msg}', 'danger')
+            flash(f'⚠️ Error saving Box {slot}: {msg}', 'danger')
 
         return redirect(url_for('admin.product_videos'))
     except Exception as e:
@@ -1084,18 +1076,19 @@ def edit_product_video(slot):
         flash(f'Error updating video box: {e}', 'danger')
         return redirect(url_for('admin.product_videos'))
 
+@admin_bp.route('/product-videos/save-and-push', methods=['POST'])
 @admin_bp.route('/product-videos/push-github', methods=['POST'])
 @admin_required
 def push_product_videos_github():
     try:
         success, msg = ProductVideoModel.push_to_github()
         if success:
-            flash(f'✅ Product videos data successfully pushed and committed to GitHub! ({msg})', 'success')
+            flash('✅ All product videos saved and pushed successfully!', 'success')
         else:
-            flash(f'⚠️ Failed to commit to GitHub: {msg}', 'danger')
+            flash(f'⚠️ Error saving and pushing: {msg}', 'danger')
         return redirect(url_for('admin.product_videos'))
     except Exception as e:
-        current_app.logger.error(f"Error pushing product videos to GitHub: {e}", exc_info=True)
-        flash(f'Error pushing to GitHub: {e}', 'danger')
+        current_app.logger.error(f"Error saving and pushing product videos: {e}", exc_info=True)
+        flash(f'Error saving and pushing: {e}', 'danger')
         return redirect(url_for('admin.product_videos'))
 

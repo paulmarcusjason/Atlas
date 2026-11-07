@@ -114,6 +114,22 @@
     white-space: nowrap;
     max-width: 160px;
   }
+  #editVideoModalBackdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.75);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 999999;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    box-sizing: border-box;
+  }
+  #editVideoModalBackdrop.show {
+    display: flex !important;
+  }
 </style>
 {% endblock %}
 
@@ -144,18 +160,9 @@
         </p>
       </div>
       <div class="admin-actions-bar">
-        {% if storage_connected %}
-          <span style="display: inline-flex; align-items: center; gap: 0.35rem; background: #dcfce7; color: #166534; padding: 0.45rem 0.85rem; border-radius: 999px; font-size: 0.8rem; font-weight: 600;">
-            🟢 GitHub Sync Active ({{ repo }}:{{ branch }})
-          </span>
-        {% else %}
-          <span style="display: inline-flex; align-items: center; gap: 0.35rem; background: #fef3c7; color: #92400e; padding: 0.45rem 0.85rem; border-radius: 999px; font-size: 0.8rem; font-weight: 600;">
-            🟡 Local Disk Storage (Configure GITHUB_TOKEN for cloud git sync)
-          </span>
-        {% endif %}
         <form action="{{ url_for('admin.push_product_videos_github') }}" method="POST" style="display: inline;">
-          <button type="submit" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 0.4rem;">
-            🚀 Push All to GitHub
+          <button type="submit" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.6rem 1.25rem; font-weight: 600;">
+            💾 Save and Push
           </button>
         </form>
       </div>
@@ -165,7 +172,7 @@
     <div style="background: #ffffff; border-left: 4px solid var(--accent, #ea580c); padding: 1rem 1.25rem; border-radius: 8px; margin-bottom: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
       <div style="font-weight: 700; color: #0f172a; margin-bottom: 0.25rem;">📺 6 Specialized Store Video Boxes</div>
       <div style="font-size: 0.875rem; color: #475569; line-height: 1.5;">
-        These 6 boxes appear on the homepage matching the specialized stores format. You can host MP4 videos directly by uploading video files, or provide external video URLs. All updates and videos are committed directly to your GitHub repository when saved or pushed.
+        These 6 boxes appear on the homepage matching the specialized stores format. Click <strong>Edit Box</strong> on any box to update its topic, video, description, and links. Click <strong>Save and Push</strong> to save and publish your changes.
       </div>
     </div>
 
@@ -210,7 +217,7 @@
           <a href="{{ v.cta_url }}" class="video-meta-tag" target="_blank" title="{{ v.cta_url }}">
             🔗 {{ v.cta_text or 'Know more' }}
           </a>
-          <button type="button" class="btn btn-outline btn-sm" onclick="openEditVideoModal({{ v.slot|tojson }}, {{ v|tojson }})">
+          <button type="button" class="btn btn-outline btn-sm" onclick="openEditVideoModal({{ v.slot }})">
             ✏️ Edit Box
           </button>
         </div>
@@ -221,12 +228,12 @@
 </div>
 
 <!-- EDIT VIDEO BOX MODAL -->
-<div class="modal-backdrop" id="editVideoModalBackdrop" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(4px); z-index: 9999; align-items: center; justify-content: center; padding: 1.5rem;">
-  <div class="modal-card admin-modal-card" style="max-width: 600px; width: 100%; max-height: 90vh; display: flex; flex-direction: column; overflow: hidden; background: #fff; border-radius: 12px; box-shadow: 0 20px 40px rgba(0,0,0,0.25);">
+<div class="modal-backdrop" id="editVideoModalBackdrop">
+  <div class="modal-card admin-modal-card" style="max-width: 620px; width: 100%; max-height: 90vh; display: flex; flex-direction: column; overflow: hidden; background: #fff; border-radius: 12px; box-shadow: 0 20px 40px rgba(0,0,0,0.25);">
     <div class="modal-header" style="padding: 1.25rem 1.5rem; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
       <div>
         <h3 class="modal-title" id="editModalHeading" style="margin: 0; font-size: 1.25rem; font-weight: 700;">Edit Video Box</h3>
-        <p style="margin: 0.2rem 0 0; font-size: 0.8rem; color: #64748b;">Update video, description, and link. Pushes to GitHub repository.</p>
+        <p style="margin: 0.2rem 0 0; font-size: 0.8rem; color: #64748b;">Update topic, video, description, and link.</p>
       </div>
       <button type="button" class="modal-close-icon" onclick="closeEditVideoModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #94a3b8;">&times;</button>
     </div>
@@ -234,11 +241,11 @@
     <form id="editVideoForm" method="POST" enctype="multipart/form-data" style="overflow-y: auto; padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem;">
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
         <div>
-          <label class="form-label" style="font-size: 0.8rem; font-weight: 600; color: #334155; margin-bottom: 0.3rem; display: block;">Box Title *</label>
+          <label class="form-label" style="font-size: 0.8rem; font-weight: 600; color: #334155; margin-bottom: 0.3rem; display: block;">Topic / Title *</label>
           <input type="text" name="title" id="m_title" class="form-input" required placeholder="e.g. Architectural Door Locks" style="width: 100%; box-sizing: border-box;">
         </div>
         <div>
-          <label class="form-label" style="font-size: 0.8rem; font-weight: 600; color: #334155; margin-bottom: 0.3rem; display: block;">Category / Division *</label>
+          <label class="form-label" style="font-size: 0.8rem; font-weight: 600; color: #334155; margin-bottom: 0.3rem; display: block;">Division / Category *</label>
           <input type="text" name="category" id="m_category" class="form-input" required placeholder="e.g. Hardwares" style="width: 100%; box-sizing: border-box;">
         </div>
       </div>
@@ -258,7 +265,7 @@
       </div>
 
       <div>
-        <label class="form-label" style="font-size: 0.8rem; font-weight: 600; color: #334155; margin-bottom: 0.3rem; display: block;">Description (like specialized stores description) *</label>
+        <label class="form-label" style="font-size: 0.8rem; font-weight: 600; color: #334155; margin-bottom: 0.3rem; display: block;">Product Description *</label>
         <textarea name="description" id="m_description" class="form-input" rows="3" required placeholder="Detailed description of the products shown in this video box..." style="width: 100%; box-sizing: border-box; resize: vertical;"></textarea>
       </div>
 
@@ -266,12 +273,13 @@
       <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1rem;">
         <label class="form-label" style="font-size: 0.85rem; font-weight: 700; color: #0f172a; margin-bottom: 0.5rem; display: block;">🎥 Video Source</label>
         <div style="margin-bottom: 0.75rem;">
-          <label style="font-size: 0.75rem; color: #64748b; margin-bottom: 0.25rem; display: block;">Upload Video File (.mp4, .webm, .mov — saved &amp; committed to GitHub):</label>
+          <label style="font-size: 0.75rem; color: #64748b; margin-bottom: 0.25rem; display: block;">Upload Video File (.mp4, .webm, .mov):</label>
           <input type="file" name="video_file" id="m_video_file" accept="video/mp4,video/webm,video/ogg,video/quicktime" class="form-input" style="width: 100%; box-sizing: border-box; background: #fff;">
         </div>
         <div>
-          <label style="font-size: 0.75rem; color: #64748b; margin-bottom: 0.25rem; display: block;">Or Video URL (e.g. /static/videos/... or GitHub Raw / CDN URL):</label>
+          <label style="font-size: 0.75rem; color: #64748b; margin-bottom: 0.25rem; display: block;">Or Video URL / Path:</label>
           <input type="text" name="video_url" id="m_video_url" class="form-input" placeholder="/static/videos/hero_desktop.mp4" style="width: 100%; box-sizing: border-box; background: #fff;">
+          <div id="m_current_video_info" style="font-size: 0.72rem; color: #64748b; margin-top: 0.35rem; word-break: break-all;"></div>
         </div>
       </div>
 
@@ -283,8 +291,9 @@
           <input type="file" name="poster_file" id="m_poster_file" accept="image/*" class="form-input" style="width: 100%; box-sizing: border-box; background: #fff;">
         </div>
         <div>
-          <label style="font-size: 0.75rem; color: #64748b; margin-bottom: 0.25rem; display: block;">Or Poster Image URL:</label>
+          <label style="font-size: 0.75rem; color: #64748b; margin-bottom: 0.25rem; display: block;">Or Poster Image URL / Path:</label>
           <input type="text" name="poster_url" id="m_poster_url" class="form-input" placeholder="/static/images/stores/hardware.jpg" style="width: 100%; box-sizing: border-box; background: #fff;">
+          <div id="m_current_poster_info" style="font-size: 0.72rem; color: #64748b; margin-top: 0.35rem; word-break: break-all;"></div>
         </div>
       </div>
 
@@ -302,7 +311,7 @@
       <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 0.75rem; border-top: 1px solid #e2e8f0; padding-top: 1rem;">
         <button type="button" class="btn btn-outline" onclick="closeEditVideoModal()">Cancel</button>
         <button type="submit" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 0.35rem;">
-          💾 Save &amp; Push to GitHub
+          💾 Save and Push
         </button>
       </div>
     </form>
@@ -310,13 +319,36 @@
 </div>
 
 <script>
-  function openEditVideoModal(slot, data) {
-    var modal = document.getElementById('editVideoModalBackdrop');
-    var form = document.getElementById('editVideoForm');
-    var heading = document.getElementById('editModalHeading');
+  // Pre-load all video box data safely in JavaScript
+  const PRODUCT_VIDEOS_DATA = {};
+  {% for v in videos %}
+  PRODUCT_VIDEOS_DATA[{{ v.slot }}] = {
+    slot: {{ v.slot }},
+    id: {{ v.id|default('')|tojson }},
+    title: {{ v.title|default('')|tojson }},
+    category: {{ v.category|default('')|tojson }},
+    badge: {{ v.badge|default('')|tojson }},
+    description: {{ v.description|default('')|tojson }},
+    video_url: {{ v.video_url|default('')|tojson }},
+    poster_url: {{ v.poster_url|default('')|tojson }},
+    cta_text: {{ v.cta_text|default('Know more')|tojson }},
+    cta_url: {{ v.cta_url|default('/products')|tojson }},
+    is_active: {{ 'true' if v.is_active != false else 'false' }}
+  };
+  {% endfor %}
 
-    heading.innerText = 'Edit Video Box ' + slot + ' (' + (data.category || '') + ')';
-    form.action = '/admin/product-videos/' + slot + '/edit';
+  function openEditVideoModal(slot) {
+    const data = PRODUCT_VIDEOS_DATA[slot] || {};
+    const modal = document.getElementById('editVideoModalBackdrop');
+    const form = document.getElementById('editVideoForm');
+    const heading = document.getElementById('editModalHeading');
+
+    if (heading) {
+      heading.innerText = 'Edit Box ' + slot + (data.category ? ' (' + data.category + ')' : '');
+    }
+    if (form) {
+      form.action = '/admin/product-videos/' + slot + '/edit';
+    }
 
     document.getElementById('m_title').value = data.title || '';
     document.getElementById('m_category').value = data.category || '';
@@ -329,21 +361,46 @@
     document.getElementById('m_is_active').checked = data.is_active !== false;
 
     // Reset file inputs
-    document.getElementById('m_video_file').value = '';
-    document.getElementById('m_poster_file').value = '';
+    const vFileInput = document.getElementById('m_video_file');
+    if (vFileInput) vFileInput.value = '';
+    const pFileInput = document.getElementById('m_poster_file');
+    if (pFileInput) pFileInput.value = '';
 
+    // Show current video and poster info
+    const vCurrentInfo = document.getElementById('m_current_video_info');
+    if (vCurrentInfo) {
+      vCurrentInfo.textContent = data.video_url ? 'Current: ' + data.video_url : 'No video currently set';
+    }
+    const pCurrentInfo = document.getElementById('m_current_poster_info');
+    if (pCurrentInfo) {
+      pCurrentInfo.textContent = data.poster_url ? 'Current: ' + data.poster_url : 'No poster image currently set';
+    }
+
+    modal.classList.add('show');
     modal.style.display = 'flex';
+    document.body.classList.add('modal-open');
   }
 
   function closeEditVideoModal() {
-    var modal = document.getElementById('editVideoModalBackdrop');
-    modal.style.display = 'none';
+    const modal = document.getElementById('editVideoModalBackdrop');
+    if (modal) {
+      modal.classList.remove('show');
+      modal.style.display = 'none';
+    }
+    document.body.classList.remove('modal-open');
   }
 
   // Close on outside click
-  window.addEventListener('click', function(e) {
-    var modal = document.getElementById('editVideoModalBackdrop');
-    if (e.target === modal) {
+  document.addEventListener('click', function(e) {
+    const modal = document.getElementById('editVideoModalBackdrop');
+    if (modal && e.target === modal) {
+      closeEditVideoModal();
+    }
+  });
+
+  // Escape key closes modal
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
       closeEditVideoModal();
     }
   });
