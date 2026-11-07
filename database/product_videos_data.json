@@ -71,7 +71,7 @@
     "category": "Electricals",
     "badge": "Electricals Division",
     "description": "Super-efficient BLDC smart fans, architectural LED illumination, flame-retardant wiring, and luxury modular switches from Legrand & Orbit.",
-    "video_url": "https://raw.githubusercontent.com/rohit-r-20/Sathik/main/static/videos/uploads/video_slot_6_1794029658.mov",
+    "video_url": "/static/videos/hero_mobile.mp4",
     "poster_url": "/static/images/stores/electricals.jpg",
     "cta_text": "Know more",
     "cta_url": "/products?category=electrical-fans",
