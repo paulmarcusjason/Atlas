@@ -36,7 +36,7 @@
     "poster_url": "/static/images/stores/cri_pumps_store.jpg",
     "cta_text": "Know more",
     "cta_url": "/products?category=pumps",
-    "is_active": true
+    "is_active": false
   },
   {
     "id": "pv_4",
@@ -49,7 +49,7 @@
     "poster_url": "/static/images/stores/power_tools.jpg",
     "cta_text": "Know more",
     "cta_url": "/products?business=plumbing&category=power-tools",
-    "is_active": true
+    "is_active": false
   },
   {
     "id": "pv_5",
@@ -62,7 +62,7 @@
     "poster_url": "/static/images/stores/luxury_bathware_store.jpg",
     "cta_text": "Know more",
     "cta_url": "/products?business=bath-kitchen",
-    "is_active": true
+    "is_active": false
   },
   {
     "id": "pv_6",
@@ -75,6 +75,6 @@
     "poster_url": "/static/images/stores/electricals.jpg",
     "cta_text": "Know more",
     "cta_url": "/products?category=electrical-fans",
-    "is_active": true
+    "is_active": false
   }
 ]
